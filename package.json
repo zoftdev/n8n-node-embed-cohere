@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-embeddings-aws-cohere",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n community node - Embeddings AWS Bedrock (embeddingsAwsCohere)",
   "license": "MIT",
   "author": {
@@ -36,8 +36,10 @@
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [  ],
-    "nodes": [ "dist/nodes/EmbeddingsAwsCohere/EmbeddingsAwsCohere.node.js" ]
+    "credentials": [],
+    "nodes": [
+      "dist/nodes/EmbeddingsAwsCohere/EmbeddingsAwsCohere.node.js"
+    ]
   },
   "devDependencies": {
     "@n8n/node-cli": "^0.19.0",
