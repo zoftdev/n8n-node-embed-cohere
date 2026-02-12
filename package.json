@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-embeddings-aws-cohere",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node - Embeddings AWS Bedrock (embeddingsAwsCohere)",
   "license": "MIT",
   "author": {
