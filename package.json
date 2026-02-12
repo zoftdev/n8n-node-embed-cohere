@@ -4,7 +4,7 @@
   "description": "n8n community node - Embeddings AWS Bedrock (embeddingsAwsCohere)",
   "license": "MIT",
   "author": {
-    "name": "Your Name"
+    "name": "Zoftdev"
   },
   "repository": {
     "type": "git",
@@ -31,11 +31,13 @@
     "release": "npx n8n-node release",
     "prepublishOnly": "npx n8n-node prerelease"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [],
-    "nodes": ["dist/nodes/EmbeddingsAwsCohere/EmbeddingsAwsCohere.node.js"]
+    "credentials": [  ],
+    "nodes": [ "dist/nodes/EmbeddingsAwsCohere/EmbeddingsAwsCohere.node.js" ]
   },
   "devDependencies": {
     "@n8n/node-cli": "^0.19.0",
