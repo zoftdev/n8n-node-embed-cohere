@@ -10,6 +10,7 @@ import {
 	type ISupplyDataFunctions,
 	type SupplyData,
 } from 'n8n-workflow';
+import { CohereBedrockEmbeddings, type CohereInputType } from './CohereBedrockEmbeddings';
 
 export class EmbeddingsAwsCohere implements INodeType {
 	description: INodeTypeDescription = {
@@ -25,7 +26,7 @@ export class EmbeddingsAwsCohere implements INodeType {
 		],
 		group: ['transform'],
 		version: 1,
-		description: 'Use Embeddings AWS Bedrock (supports Cohere, Titan, etc.)',
+		description: 'Use Embeddings AWS Bedrock with Cohere models (proper input_type support)',
 		defaults: {
 			name: 'Embeddings AWS Cohere',
 		},
@@ -38,7 +39,7 @@ export class EmbeddingsAwsCohere implements INodeType {
 			resources: {
 				primaryDocumentation: [
 					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.embeddingsawsbedrock/',
+						url: 'https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-embed.html',
 					},
 				],
 			},
@@ -50,7 +51,7 @@ export class EmbeddingsAwsCohere implements INodeType {
 		outputNames: ['Embeddings'],
 		requestDefaults: {
 			ignoreHttpStatusErrors: true,
-			baseURL: '=https://bedrock.{{$credentials?.region ?? "eu-central-1"}}.amazonaws.com',
+			baseURL: '=https://bedrock.{{$credentials?.region ?? "us-east-1"}}.amazonaws.com',
 		},
 		properties: [
 			{
@@ -58,7 +59,7 @@ export class EmbeddingsAwsCohere implements INodeType {
 				name: 'model',
 				type: 'options',
 				description:
-					'The model which will generate the completion. <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/foundation-models.html">Learn more</a>.',
+					'The Cohere embedding model to use. <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-embed.html">Learn more</a>.',
 				typeOptions: {
 					loadOptions: {
 						routing: {
@@ -99,7 +100,101 @@ export class EmbeddingsAwsCohere implements INodeType {
 						property: 'model',
 					},
 				},
-				default: '',
+				default: 'cohere.embed-english-v3',
+			},
+			{
+				displayName: 'Use Cohere Format',
+				name: 'useCohereFormat',
+				type: 'boolean',
+				default: true,
+				description:
+					'Whether to use Cohere-specific request format with input_type. Enable for Cohere models, disable for Titan/other models.',
+			},
+			{
+				displayName: 'Options',
+				name: 'options',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				displayOptions: {
+					show: {
+						useCohereFormat: [true],
+					},
+				},
+				options: [
+					{
+						displayName: 'Document Input Type',
+						name: 'inputTypeDocument',
+						type: 'options',
+						default: 'search_document',
+						description: 'Input type when embedding documents for storage',
+						options: [
+							{
+								name: 'Search Document',
+								value: 'search_document',
+								description: 'Use when encoding documents for a vector database',
+							},
+							{
+								name: 'Classification',
+								value: 'classification',
+								description: 'Use for text classification tasks',
+							},
+							{
+								name: 'Clustering',
+								value: 'clustering',
+								description: 'Use for clustering embeddings',
+							},
+						],
+					},
+					{
+						displayName: 'Query Input Type',
+						name: 'inputTypeQuery',
+						type: 'options',
+						default: 'search_query',
+						description: 'Input type when embedding queries for search',
+						options: [
+							{
+								name: 'Search Query',
+								value: 'search_query',
+								description: 'Use when querying a vector database',
+							},
+							{
+								name: 'Classification',
+								value: 'classification',
+								description: 'Use for text classification tasks',
+							},
+							{
+								name: 'Clustering',
+								value: 'clustering',
+								description: 'Use for clustering embeddings',
+							},
+						],
+					},
+					{
+						displayName: 'Truncate',
+						name: 'truncate',
+						type: 'options',
+						default: 'END',
+						description: 'How to handle texts longer than max tokens',
+						options: [
+							{
+								name: 'End',
+								value: 'END',
+								description: 'Truncate from the end (recommended)',
+							},
+							{
+								name: 'Start',
+								value: 'START',
+								description: 'Truncate from the start',
+							},
+							{
+								name: 'None',
+								value: 'NONE',
+								description: 'Return error if text is too long',
+							},
+						],
+					},
+				],
 			},
 		],
 	};
@@ -112,6 +207,7 @@ export class EmbeddingsAwsCohere implements INodeType {
 			sessionToken: string;
 		}>('aws');
 		const modelName = this.getNodeParameter('model', itemIndex) as string;
+		const useCohereFormat = this.getNodeParameter('useCohereFormat', itemIndex, true) as boolean;
 
 		const clientConfig: BedrockRuntimeClientConfig = {
 			region: credentials.region,
@@ -131,12 +227,34 @@ export class EmbeddingsAwsCohere implements INodeType {
 		}
 
 		const client = new BedrockRuntimeClient(clientConfig);
-		const embeddings = new BedrockEmbeddings({
-			client,
-			model: modelName,
-			maxRetries: 3,
-			region: credentials.region,
-		});
+
+		let embeddings;
+
+		if (useCohereFormat) {
+			// Use custom Cohere embeddings with proper input_type support
+			const options = this.getNodeParameter('options', itemIndex, {}) as {
+				inputTypeDocument?: CohereInputType;
+				inputTypeQuery?: CohereInputType;
+				truncate?: 'NONE' | 'START' | 'END';
+			};
+
+			embeddings = new CohereBedrockEmbeddings({
+				client,
+				model: modelName,
+				inputTypeDocument: options.inputTypeDocument ?? 'search_document',
+				inputTypeQuery: options.inputTypeQuery ?? 'search_query',
+				truncate: options.truncate ?? 'END',
+				maxRetries: 3,
+			});
+		} else {
+			// Use standard BedrockEmbeddings for Titan/other models
+			embeddings = new BedrockEmbeddings({
+				client,
+				model: modelName,
+				maxRetries: 3,
+				region: credentials.region,
+			});
+		}
 
 		return {
 			response: logWrapper(embeddings, this),
