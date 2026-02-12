@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_USERNAME/n8n-nodes-embeddings-aws-cohere.git"
+    "url": "git+https://github.com/zoftdev/n8n-node-embed-cohere.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/n8n-nodes-embeddings-aws-cohere/issues"
+    "url": "https://github.com/zoftdev/n8n-node-embed-cohere/issues"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/n8n-nodes-embeddings-aws-cohere#readme",
+  "homepage": "https://github.com/zoftdev/n8n-node-embed-cohere#readme",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
