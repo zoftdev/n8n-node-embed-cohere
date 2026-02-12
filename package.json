@@ -1,0 +1,63 @@
+{
+  "name": "n8n-nodes-embeddings-aws-cohere",
+  "version": "0.1.0",
+  "description": "n8n community node - Embeddings AWS Bedrock (embeddingsAwsCohere)",
+  "license": "MIT",
+  "author": {
+    "name": "Your Name"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_USERNAME/n8n-nodes-embeddings-aws-cohere.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/n8n-nodes-embeddings-aws-cohere/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/n8n-nodes-embeddings-aws-cohere#readme",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "embeddings",
+    "aws",
+    "bedrock",
+    "cohere"
+  ],
+  "scripts": {
+    "build": "npx n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "npx n8n-node dev",
+    "lint": "npx n8n-node lint",
+    "lint:fix": "npx n8n-node lint --fix",
+    "release": "npx n8n-node release",
+    "prepublishOnly": "npx n8n-node prerelease"
+  },
+  "files": ["dist"],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [],
+    "nodes": ["dist/nodes/EmbeddingsAwsCohere/EmbeddingsAwsCohere.node.js"]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.19.0",
+    "n8n-workflow": "^2.8.0",
+    "typescript": "~5.9.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@langchain/aws": "^1.2.0",
+    "@n8n/ai-utilities": "^0.2.0",
+    "@smithy/node-http-handler": "^4.0.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "overrides": {
+    "@langchain/core": "1.1.8",
+    "langchain": "1.2.3",
+    "@langchain/community": "1.0.5",
+    "@langchain/classic": "1.0.5"
+  }
+}
